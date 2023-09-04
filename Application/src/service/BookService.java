@@ -1,17 +1,14 @@
 package service;
 
-import java.util.Date;
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 import database.DataBase;
+import interfaces.CRUD;
 import model.Book;
 import java.util.List;
-import java.sql.Connection;
 
-public class BookService
+public class BookService implements CRUD <Book>
 {
     private final Connection connection;
 
@@ -19,26 +16,77 @@ public class BookService
         this.connection = DataBase.getConnection();
     }
 
-    public List<Book> getAllBooks() {
-        final List<Book> books = new ArrayList<Book>();
-        final String query = "SELECT * FROM book";
+    @Override
+    public Book save(Book book) throws SQLException {
+        String query = "INSERT INTO book (isbn, titre, description, author, quantity, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+        preparedStatement.setString(1, book.getIsbn());
+        preparedStatement.setString(2, book.getTitre());
+        preparedStatement.setString(3, book.getDescription());
+        preparedStatement.setString(4, book.getAuthor());
+        preparedStatement.setInt(5, book.getQuantity());
+        preparedStatement.setInt(6, book.getCreated_by());
+        preparedStatement.setDate(7, new java.sql.Date(book.getCreated_at().getTime()));
+
+        int rowsAffected = preparedStatement.executeUpdate();
+
+        if (rowsAffected > 0) {
+            return book;
+        } else {
+            throw new SQLException("Failed to insert the book");
+        }
+    }
+
+    @Override
+    public boolean update(Book book) throws SQLException {
+        String query = "UPDATE book SET titre = ?, description = ?, author = ?, quantity = ?, created_by = ?, created_at = ? WHERE isbn = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+        preparedStatement.setString(1, book.getTitre());
+        preparedStatement.setString(2, book.getDescription());
+        preparedStatement.setString(3, book.getAuthor());
+        preparedStatement.setInt(4, book.getQuantity());
+        preparedStatement.setInt(5, book.getCreated_by());
+        preparedStatement.setDate(6, new java.sql.Date(book.getCreated_at().getTime()));
+        preparedStatement.setString(7, book.getIsbn());
+
+        int rowsAffected = preparedStatement.executeUpdate();
+
+        return rowsAffected > 0;
+    }
+
+    @Override
+    public List<Book> read() {
+        final List<Book> books = new ArrayList<>();
+        final String query = "SELECT * FROM `book`";
         try (final PreparedStatement preparedStatement = this.connection.prepareStatement(query);
              final ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                final String isbn = resultSet.getString("isbn");
-                final String titre = resultSet.getString("titre");
-                final String description = resultSet.getString("description");
-                final String author = resultSet.getString("author");
-                final int quantity = resultSet.getInt("quantity");
-                final int created_by = resultSet.getInt("created_by");
-                final Date created_at = resultSet.getDate("created_at");
-                final Book book = new Book(isbn, titre, description, author, quantity, created_by, created_at);
+                Book book = new Book(
+                        resultSet.getString("isbn"),
+                        resultSet.getString("titre"),
+                        resultSet.getString("description"),
+                        resultSet.getString("author"),
+                        resultSet.getInt("quantity"),
+                        resultSet.getInt("created_by"),
+                        resultSet.getDate("created_at")
+                );
                 books.add(book);
             }
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getErrorCode() +" : "+ e.getMessage());;
         }
         return books;
+    }
+
+    @Override
+    public boolean delete(Book book) throws SQLException{
+        String query = "DELETE FROM book where isbn = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, book.getIsbn());
+        int rowAffected = preparedStatement.executeUpdate();
+        return rowAffected > 0;
     }
 }

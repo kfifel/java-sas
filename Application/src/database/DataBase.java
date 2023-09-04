@@ -19,9 +19,9 @@ public final class DataBase {
         if (conn == null) {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                conn = DriverManager.getConnection("jdbc:mysql://localhost/library-management", "root", "");
-            } catch (SQLException | ClassNotFoundException var1) {
-                System.out.println("Error in connection to the database: " + var1);
+                conn = DriverManager.getConnection("jdbc:mysql://" + SERVER_NAME + "/" + DB_NAME, USERNAME, PASSWORD);
+            } catch (SQLException | ClassNotFoundException e) {
+                System.out.println("Error in connection to the database: " + e);
             }
         }
 
@@ -33,8 +33,8 @@ public final class DataBase {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
             }
-        } catch (SQLException var1) {
-            System.out.println("Disconnection error: " + var1.getMessage());
+        } catch (SQLException e) {
+            System.out.println("Disconnection error: " + e.getMessage());
         }
 
         conn = null;
