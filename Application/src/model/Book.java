@@ -6,7 +6,9 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Book
 {
@@ -15,12 +17,21 @@ public class Book
     private String description;
     private String author;
     private int quantity;
-    private int created_by;
+    private Librarian created_by;
     private Date created_at;
+    private List<BookBorrow> bookBorrowList;
+
+    public List<BookBorrow> getBookBorrowList() {
+        return bookBorrowList;
+    }
+
+    public void addBookBorrow(BookBorrow bookBorrowList) {
+        this.bookBorrowList.add(bookBorrowList);
+    }
 
     public Book() {}
 
-    public Book(String isbn, String titre, String description, String author, int quantity, int created_by, Date created_at) {
+    public Book(String isbn, String titre, String description, String author, int quantity, Librarian created_by, Date created_at) {
         this.isbn = isbn;
         this.titre = titre;
         this.description = description;
@@ -28,25 +39,8 @@ public class Book
         this.quantity = quantity;
         this.created_by = created_by;
         this.created_at = created_at;
-    }
 
-    public Librarian getCreator() throws SQLException {
-        final String query = "select * from `librarian` where id = ? ";
-        final Connection connection = DataBase.getConnection();
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, this.created_by);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return new Librarian(
-                    resultSet.getInt("id"),
-                    resultSet.getString("firstname"),
-                    resultSet.getString("lastname"),
-                    resultSet.getString("email"),
-                    resultSet.getString("password")
-                );
-            }
-        }
-        return null;
+        bookBorrowList = new ArrayList<>();
     }
 
     public String getIsbn() {
@@ -89,11 +83,11 @@ public class Book
         this.quantity = quantity;
     }
 
-    public int getCreated_by() {
+    public Librarian getCreated_by() {
         return created_by;
     }
 
-    public void setCreated_by(int created_by) {
+    public void setCreated_by(Librarian created_by) {
         this.created_by = created_by;
     }
 

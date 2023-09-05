@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import database.DataBase;
 import interfaces.CRUD;
 import model.Book;
+import model.Librarian;
+
 import java.util.List;
 
 public class BookService implements CRUD <Book>
@@ -26,7 +28,7 @@ public class BookService implements CRUD <Book>
         preparedStatement.setString(3, book.getDescription());
         preparedStatement.setString(4, book.getAuthor());
         preparedStatement.setInt(5, book.getQuantity());
-        preparedStatement.setInt(6, book.getCreated_by());
+        preparedStatement.setInt(6, book.getCreated_by().id);
         preparedStatement.setDate(7, new java.sql.Date(book.getCreated_at().getTime()));
 
         int rowsAffected = preparedStatement.executeUpdate();
@@ -47,7 +49,7 @@ public class BookService implements CRUD <Book>
         preparedStatement.setString(2, book.getDescription());
         preparedStatement.setString(3, book.getAuthor());
         preparedStatement.setInt(4, book.getQuantity());
-        preparedStatement.setInt(5, book.getCreated_by());
+        preparedStatement.setInt(5, book.getCreated_by().id);
         preparedStatement.setDate(6, new java.sql.Date(book.getCreated_at().getTime()));
         preparedStatement.setString(7, book.getIsbn());
 
@@ -59,18 +61,26 @@ public class BookService implements CRUD <Book>
     @Override
     public List<Book> read() {
         final List<Book> books = new ArrayList<>();
-        final String query = "SELECT * FROM `book`";
+        final String query = "SELECT * FROM book b INNER JOIN librarian l ON b.created_by = l.id";
         try (final PreparedStatement preparedStatement = this.connection.prepareStatement(query);
              final ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
+                // creator
+                Librarian created_by = new Librarian(
+                        resultSet.getInt("l.id"),
+                        resultSet.getString("l.firstname"),
+                        resultSet.getString("l.lastname"),
+                        resultSet.getString("l.email"),
+                        "********"
+                        );
                 Book book = new Book(
-                        resultSet.getString("isbn"),
-                        resultSet.getString("titre"),
-                        resultSet.getString("description"),
-                        resultSet.getString("author"),
-                        resultSet.getInt("quantity"),
-                        resultSet.getInt("created_by"),
-                        resultSet.getDate("created_at")
+                        resultSet.getString("b.isbn"),
+                        resultSet.getString("b.titre"),
+                        resultSet.getString("b.description"),
+                        resultSet.getString("b.author"),
+                        resultSet.getInt("b.quantity"),
+                        created_by,
+                        resultSet.getDate("b.created_at")
                 );
                 books.add(book);
             }
