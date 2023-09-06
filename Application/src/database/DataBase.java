@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public final class DataBase {
-    private static final String DB_NAME = "library-management";
+    private static final String DB_NAME = "library_management";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "";
     private static final String SERVER_NAME = "localhost";
