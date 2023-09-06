@@ -86,7 +86,7 @@ public class BookService implements CRUD <Book>
             }
         }
         catch (SQLException e) {
-            System.out.println(e.getErrorCode() +" : "+ e.getMessage());;
+            System.out.println(e.getErrorCode() +" : "+ e.getMessage());
         }
         return books;
     }
