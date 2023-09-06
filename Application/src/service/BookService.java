@@ -28,7 +28,7 @@ public class BookService implements CRUD <Book>
         preparedStatement.setString(3, book.getDescription());
         preparedStatement.setString(4, book.getAuthor());
         preparedStatement.setInt(5, book.getQuantity());
-        preparedStatement.setInt(6, book.getCreated_by().id);
+        preparedStatement.setInt(6, book.getCreated_by().getId());
         preparedStatement.setDate(7, new java.sql.Date(book.getCreated_at().getTime()));
 
         int rowsAffected = preparedStatement.executeUpdate();
@@ -49,7 +49,7 @@ public class BookService implements CRUD <Book>
         preparedStatement.setString(2, book.getDescription());
         preparedStatement.setString(3, book.getAuthor());
         preparedStatement.setInt(4, book.getQuantity());
-        preparedStatement.setInt(5, book.getCreated_by().id);
+        preparedStatement.setInt(5, book.getCreated_by().getId());
         preparedStatement.setDate(6, new java.sql.Date(book.getCreated_at().getTime()));
         preparedStatement.setString(7, book.getIsbn());
 
