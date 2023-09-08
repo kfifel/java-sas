@@ -1,11 +1,5 @@
 package model;
 
-import database.DataBase;
-
-import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,14 +14,6 @@ public class Book
     private Librarian created_by;
     private Date created_at;
     private List<BookBorrow> bookBorrowList;
-
-    public List<BookBorrow> getBookBorrowList() {
-        return bookBorrowList;
-    }
-
-    public void addBookBorrow(BookBorrow bookBorrowList) {
-        this.bookBorrowList.add(bookBorrowList);
-    }
 
     public Book() {}
 
@@ -97,6 +83,14 @@ public class Book
 
     public void setCreated_at(Date created_at) {
         this.created_at = created_at;
+    }
+
+    public List<BookBorrow> getBookBorrowList() {
+        return bookBorrowList;
+    }
+
+    public void addBookBorrow(BookBorrow bookBorrowList) {
+        this.bookBorrowList.add(bookBorrowList);
     }
 
     @Override

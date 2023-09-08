@@ -1,24 +1,22 @@
-import model.Book;
+import controller.MenuController;
+import model.Librarian;
+import security.Authentication;
 import service.BookService;
+import service.BorrowService;
+import service.ReportService;
 
 import java.sql.SQLException;
 public class LibraryManagement {
-    private static final BookService bookService = new BookService();
+    public static void main(String[] args) throws SQLException {
+        BookService bookService = new BookService();
+        ReportService reportService = new ReportService();
+        BorrowService borrowService = new BorrowService();
 
-    public static void main(String[] args)  {
-        //bookService.getAllBooks().forEach(System.out::println);
+        MenuController menuController = new MenuController(bookService, reportService, borrowService);
+        Authentication.librarian = new Librarian(1, "khalid", "fifel", "khalid@gmail.com");
+        menuController.start();
 
-        bookService.read().forEach( book -> {
-//            if(book.getCreated_by().id == 1) {
-//                try {
-//                    bookService.delete(book);
-//                } catch (SQLException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-            System.out.println("books: =====================");
-            System.out.println(book.getCreated_by());
-        });
+
     }
 
 }
