@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Librarian {
@@ -10,9 +11,10 @@ public class Librarian {
     private String password;
 
     // relation with table book that librarian create
-    private List <Book> BookAdded;
+    private List <Book> bookAdded;
 
     public Librarian() {
+        bookAdded = new ArrayList<>();
     }
 
     public Librarian(int id, String firstname, String lastname, String email, String password) {
@@ -21,6 +23,16 @@ public class Librarian {
         this.lastname = lastname;
         this.email = email;
         this.password = password;
+
+        bookAdded = new ArrayList<>();
+    }
+    public Librarian(int id, String firstname, String lastname, String email) {
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+
+        bookAdded = new ArrayList<>();
     }
 
     public int getId() {
@@ -64,11 +76,11 @@ public class Librarian {
     }
 
     public List<Book> getBookAdded() {
-        return BookAdded;
+        return bookAdded;
     }
 
-    public void addBookAdded(Book bookAdded) {
-        BookAdded.add(bookAdded);
+    public void addBookAdded(Book book) {
+        bookAdded.add(book);
     }
 
     public String toString() {
