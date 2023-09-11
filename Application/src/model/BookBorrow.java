@@ -1,62 +1,61 @@
 
 package model;
 
+import ennumiration.BookBorrowStatus;
+
 import java.util.Date;
 
 public class BookBorrow
 {
-    private int borrow_id;
-    private String isbn;
-    private int borrower_id;
-    private String status;
+    private int id;
+    private Book book;
+    private Borrower borrower;
+    private BookBorrowStatus status;
     private Date borrow_date;
     private Date return_date;
     private Date created_at;
 
-    // relation with tables book and borrower
-    private Book book = null;
-    private Borrower borrower = null;
 
     public BookBorrow() {}
-    public BookBorrow(int borrow_id, String isbn, int borrower_id, String status, Date borrow_date, Date return_date, Date created_at) {
-        this.borrow_id = borrow_id;
-        this.isbn = isbn;
-        this.borrower_id = borrower_id;
+    public BookBorrow(int id, Book isbn, Borrower borrower_id, BookBorrowStatus status, Date borrow_date, Date return_date, Date created_at) {
+        this.id = id;
+        this.book = isbn;
+        this.borrower = borrower_id;
         this.status = status;
         this.borrow_date = borrow_date;
         this.return_date = return_date;
         this.created_at = created_at;
     }
 
-    public int getBorrow_id() {
-        return borrow_id;
+    public int getId() {
+        return id;
     }
 
-    public void setBorrow_id(int borrow_id) {
-        this.borrow_id = borrow_id;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getIsbn() {
-        return isbn;
+    public Book getBook() {
+        return book;
     }
 
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
+    public void setBook(Book book) {
+        this.book = book;
     }
 
-    public int getBorrower_id() {
-        return borrower_id;
+    public Borrower getBorrower() {
+        return borrower;
     }
 
-    public void setBorrower_id(int borrower_id) {
-        this.borrower_id = borrower_id;
+    public void setBorrower(Borrower borrower) {
+        this.borrower = borrower;
     }
 
-    public String getStatus() {
+    public BookBorrowStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(BookBorrowStatus status) {
         this.status = status;
     }
 
@@ -82,21 +81,5 @@ public class BookBorrow
 
     public void setCreated_at(Date created_at) {
         this.created_at = created_at;
-    }
-
-    public Book getBook() {
-        return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
-    }
-
-    public Borrower getBorrower() {
-        return borrower;
-    }
-
-    public void setBorrower(Borrower borrower) {
-        this.borrower = borrower;
     }
 }

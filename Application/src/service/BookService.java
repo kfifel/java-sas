@@ -41,4 +41,23 @@ public class BookService
         }
         return book;
     }
+
+    public int countBooks() {
+        try {
+            return bookRepository.countBooks();
+        } catch (SQLException e) {
+            Logger.error(e.getMessage());
+        }
+
+        return -1;
+    }
+
+    public Book getMostBorrowedBook() {
+        try {
+            return bookRepository.getMostBorrowedBook();
+        } catch (SQLException e) {
+            Logger.error("Error: ", e);
+            return null;
+        }
+    }
 }

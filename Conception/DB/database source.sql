@@ -30,13 +30,12 @@ CREATE TABLE book (
 );
 
 CREATE TABLE book_borrow (
-    borrow_id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     isbn VARCHAR(13),
     borrower_id INT,
     status VARCHAR(50),
     borrow_date DATETIME,
     return_date DATETIME,
-    created_at DATETIME,
     CONSTRAINT `fk_book_book_borrow` FOREIGN KEY (isbn) REFERENCES book(isbn)
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `fk_borrower_book_borrow` FOREIGN KEY (borrower_id) REFERENCES borrower(id)

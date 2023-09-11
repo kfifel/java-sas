@@ -17,7 +17,7 @@ INSERT INTO `book` (`isbn`, `titre`, `description`, `author`, `quantity`, `creat
 
 
 
-INSERT INTO `book_borrow` (`borrow_id`, `isbn`, `borrower_id`, `status`, `borrow_date`, `return_date`, `created_at`) VALUES
-         (4, 'ISBN1', 1, 'TAKEN', '2023-09-05 14:44:55', NULL, '2023-09-05 14:44:55'),
-         (5, 'ISBN2', 2, 'TAKEN', '2023-09-05 14:44:55', NULL, '2023-09-05 14:44:55'),
-         (6, 'ISBN3', 1, 'RETURNED', '2023-09-05 14:44:55', NULL, '2023-09-05 14:44:55');
+INSERT INTO `book_borrow` (`isbn`, `borrower_id`, `status`, `borrow_date`, `return_date`) VALUES
+         ('ISBN1', 1, 'TAKEN', '2023-09-05 14:44:55', NULL),
+         ('ISBN2', 2, 'TAKEN', '2023-09-05 14:44:55', NULL),
+         ('ISBN3', 1, 'RETURNED', '2023-09-05 14:44:55', NULL);

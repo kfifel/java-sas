@@ -4,17 +4,14 @@ import java.util.Date;
 
 public class BookLost {
     public int id;
-    public String isbn;
-    public Date created_at;
-
-    // relation with table Book
     private Book book;
+    public Date created_at;
 
     public BookLost() {}
 
-    public BookLost(int id, String isbn, Date created_at) {
+    public BookLost(int id, Book book, Date created_at) {
         this.id = id;
-        this.isbn = isbn;
+        this.book = book;
         this.created_at = created_at;
     }
 
@@ -24,14 +21,6 @@ public class BookLost {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
     }
 
     public Date getCreated_at() {
