@@ -35,10 +35,10 @@ public class ReportService {
     public StaticticsData generateRapport() {
         StaticticsData statisticsData = new StaticticsData();
 
-        statisticsData.BookCount = bookService.countBooks();
-        statisticsData.BorrowerCount = borrowerService.countBorrowers();
-        statisticsData.MostBorrow = bookService.getMostBorrowedBook();
-        statisticsData.BorrowCountThisYear = bookBorrowService.countBorrowsThisYear();
+        statisticsData.bookCount = bookService.countBooks();
+        statisticsData.borrowerCount = borrowerService.countBorrowers();
+        statisticsData.mostBorrow = bookService.getMostBorrowedBook();
+        statisticsData.borrowCountThisYear = bookBorrowService.countBorrowsThisYear();
 
         return statisticsData;
     }
@@ -54,10 +54,10 @@ public class ReportService {
 
             // Create an instance of StaticticsData and populate it with your statistics
             StaticticsData statisticsData = new StaticticsData();
-            statisticsData.BookCount = bookService.countBooks();
-            statisticsData.BorrowerCount = borrowerService.countBorrowers();
-            statisticsData.MostBorrow = bookService.getMostBorrowedBook();
-            statisticsData.BorrowCountThisYear = bookBorrowService.countBorrowsThisYear();
+            statisticsData.bookCount = bookService.countBooks();
+            statisticsData.borrowerCount = borrowerService.countBorrowers();
+            statisticsData.mostBorrow = bookService.getMostBorrowedBook();
+            statisticsData.borrowCountThisYear = bookBorrowService.countBorrowsThisYear();
 
             // Create parameters for your report
             Map<String, Object> parameters = new HashMap<>();

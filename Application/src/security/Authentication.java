@@ -47,4 +47,8 @@ public class Authentication {
         }
 
     }
+    public static void logout() {
+        Authentication.librarian = null;
+        System.out.println("you are logged out");
+    }
 }
