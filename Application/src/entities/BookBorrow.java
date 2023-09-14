@@ -1,5 +1,5 @@
 
-package model;
+package entities;
 
 import ennumiration.BookBorrowStatus;
 
@@ -13,7 +13,6 @@ public class BookBorrow
     private BookBorrowStatus status;
     private Date borrow_date;
     private Date return_date;
-    private Date created_at;
 
 
     public BookBorrow() {}
@@ -24,7 +23,6 @@ public class BookBorrow
         this.status = status;
         this.borrow_date = borrow_date;
         this.return_date = return_date;
-        this.created_at = created_at;
     }
 
     public int getId() {
@@ -75,11 +73,4 @@ public class BookBorrow
         this.return_date = return_date;
     }
 
-    public Date getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
-    }
 }
