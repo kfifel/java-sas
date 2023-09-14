@@ -1,7 +1,6 @@
 import configuration.Properties;
 import controller.MenuController;
-import model.Librarian;
-import repository.BorrowRepository;
+import entities.Librarian;
 import security.Authentication;
 import service.BookService;
 import service.BorrowService;
@@ -23,7 +22,6 @@ public class LibraryManagement {
         if(Properties.DEVELOPMENT)
             Authentication.librarian = new Librarian(1, "khalid", "fifel", "khalid@gmail.com");
 
-        (new BorrowRepository().read()).forEach(bookBorrow -> System.out.println(bookBorrow.toString()));
         menuController.start();
     }
 

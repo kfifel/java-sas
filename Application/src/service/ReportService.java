@@ -1,7 +1,7 @@
 package service;
 
-import model.BookBorrow;
-import model.dto.StaticticsData;
+import entities.BookBorrow;
+import entities.dto.StaticticsData;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;

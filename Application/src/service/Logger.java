@@ -1,5 +1,6 @@
 package service;
 
+import configuration.Const;
 import configuration.Properties;
 
 import java.io.FileWriter;
@@ -8,6 +9,7 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Objects;
 
 public class Logger {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -35,7 +37,12 @@ public class Logger {
         String logMessage = "[" + formattedDate + "] [" + level + "] " + message;
 
         if(Properties.DEVELOPMENT)
-            System.out.println(logMessage);
+            System.out.println(
+                    ( Objects.equals(level, "ERROR") ?
+                            Const.RED : Objects.equals(level, "INFO")
+                            ? Const.BLEU : Const.WARNING )
+                            + " " + logMessage + " " + Const.WHITE);
+
 
         // Log to file
         try (FileWriter fileWriter = new FileWriter(logFilePath + LocalDate.now() + ".txt", true)) {
