@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookRepository implements CRUD<Book> {
-    public BookRepository() {}
+    private final Connection connection;
+    public BookRepository() {
+        connection = DataBase.getConnection();
+    }
 
     @Override
     public Book save(Book book) throws SQLException {
@@ -31,11 +34,10 @@ public class BookRepository implements CRUD<Book> {
         }
     }
 
-    private static PreparedStatement getPreparedStatement(Book book) throws SQLException {
+    private PreparedStatement getPreparedStatement(Book book) throws SQLException {
         String query = "INSERT INTO book " +
                 "(isbn, titre, description, author, quantity, created_by, created_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
 
         preparedStatement.setString(1, book.getIsbn());
@@ -51,7 +53,6 @@ public class BookRepository implements CRUD<Book> {
                 "titre = ?, description = ?, author = ?, quantity = ?, created_by = ?, created_at = ?" +
                 " WHERE isbn = ?";
 
-        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
 
         preparedStatement.setString(1, book.getTitre());
@@ -69,12 +70,12 @@ public class BookRepository implements CRUD<Book> {
 
     @Override
     public List<Book> read() {
-        final List<Book> books = new ArrayList<>();
-        final String query = "SELECT * FROM book b INNER JOIN librarian l ON b.created_by = l.id WHERE quantity > 0";
-        Connection connection = DataBase.getConnection();
+        List<Book> books = new ArrayList<>();
+        String query = "SELECT * FROM book b INNER JOIN librarian l ON b.created_by = l.id WHERE quantity > 0";
 
-        try (final PreparedStatement preparedStatement = connection.prepareStatement(query);
-             final ResultSet resultSet = preparedStatement.executeQuery()) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            final ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 // creator
                 Librarian created_by = new Librarian(
@@ -104,7 +105,6 @@ public class BookRepository implements CRUD<Book> {
     @Override
     public boolean delete(Book book) throws SQLException{
         String query = "DELETE FROM book where isbn = ?";
-        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1, book.getIsbn());
         int rowAffected = preparedStatement.executeUpdate();
@@ -117,7 +117,6 @@ public class BookRepository implements CRUD<Book> {
         String query = "SELECT * FROM " +
                 "book b INNER JOIN librarian l On b.created_by = l.id" +
                 " WHERE isbn = ?";
-        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1, isbn);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -148,12 +147,11 @@ public class BookRepository implements CRUD<Book> {
 
     public int countBooks() throws SQLException {
         String query = "SELECT COUNT(*) FROM book";
-        Connection connection = DataBase.getConnection();
-        try (PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet resultSet = stmt.executeQuery()) {
-            if (resultSet.next()) {
-                return resultSet.getInt(1);
-            }
+
+        PreparedStatement stmt = connection.prepareStatement(query);
+        ResultSet resultSet = stmt.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
         }
         return -1;
     }
@@ -165,21 +163,18 @@ public class BookRepository implements CRUD<Book> {
                 "GROUP BY bk.isbn " +
                 "ORDER BY count DESC " +
                 "LIMIT 1";
-        Connection connection = DataBase.getConnection();
-        try (PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet resultSet = stmt.executeQuery()) {
-            if (resultSet.next()) {
-                String isbn = resultSet.getString("isbn");
-                int count = resultSet.getInt("count");
-                Book book = findByIsbn(isbn);
+        PreparedStatement stmt = connection.prepareStatement(query);
+        ResultSet resultSet = stmt.executeQuery();
+        if (resultSet.next()) {
+            String isbn = resultSet.getString("isbn");
+            int count = resultSet.getInt("count");
+            Book book = findByIsbn(isbn);
 
-                if (book != null) {
-                    book.setBorrowCount(count);
-                    return book;
-                }
+            if (book != null) {
+                book.setBorrowCount(count);
+                return book;
             }
         }
-
         return null;
     }
 }

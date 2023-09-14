@@ -71,9 +71,9 @@ public class MenuController {
         System.out.println("=====================================");
         System.out.println(" ");
         System.out.print("====  EMAIL: ");
-        String email = sc.nextLine();
+        String email = sc.nextLine().trim().toLowerCase();
         System.out.print("====  PASSWORD: ");
-        String password = sc.nextLine();
+        String password = sc.nextLine().trim();
         if (!Authentication.login(email, password)){
             login(++trys);
         }
@@ -275,7 +275,10 @@ public class MenuController {
 
     private void modifyBookInformation() throws SQLException {
         Book book = this.searchForBook();
-
+        if(book == null){
+            ConsoleMessageService.warning("There is no book with this isbn");
+            return;
+        }
         System.out.println(
                 Const.WARNING+
                 "\n****************** if column is not include for modification don't fill it *************\n"
@@ -283,15 +286,26 @@ public class MenuController {
 
         Book newBook = PrintingService.getBookFromLibrarian();
 
-        book.setTitre(newBook.getTitre().trim());
-        book.setDescription(newBook.getDescription());
-        book.setAuthor(newBook.getAuthor());
-        book.setQuantity(newBook.getQuantity());
+        if (newBook.getTitre() != null && !newBook.getTitre().isEmpty()) {
+            book.setTitre(newBook.getTitre());
+        }
+
+        if (newBook.getDescription() != null && !newBook.getDescription().isEmpty()) {
+            book.setDescription(newBook.getDescription());
+        }
+
+        if (newBook.getAuthor() != null && !newBook.getAuthor().isEmpty()) {
+            book.setAuthor(newBook.getAuthor());
+        }
+
+        if (newBook.getQuantity() >= 0) {
+            book.setQuantity(newBook.getQuantity());
+        }
 
         if(bookService.update(book))
-            System.out.println("livre est bien modifier");
+            ConsoleMessageService.success("Livre est bien modifier !");
         else
-            System.out.println("somme error is occurred");
+            ConsoleMessageService.error("Somme error is occurred !!");
     }
 
     private void generateReport() {

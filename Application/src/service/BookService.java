@@ -4,6 +4,7 @@ import java.sql.*;
 
 import repository.BookRepository;
 import entities.Book;
+import security.Authentication;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class BookService
     }
 
     public boolean update(Book book) throws SQLException {
+        Logger.info("Updating book with isbn:"+ book.getIsbn());
         return bookRepository.update(book);
     }
 
@@ -42,6 +44,7 @@ public class BookService
     }
 
     public boolean delete(Book book) throws SQLException{
+        Logger.warning("Delete book with isbn:" + book.getIsbn() + "By the librarian with id " + Authentication.librarian.getId());
         return bookRepository.delete(book);
     }
 

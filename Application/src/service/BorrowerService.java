@@ -14,14 +14,17 @@ public class BorrowerService {
     }
 
     public List<Borrower> read() {
+        Logger.info("calling for getting all Borrowers ");
         return borrowerRepository.read();
     }
 
     public Borrower findById(int borrowerId) {
+        Logger.info("calling for finding Borrowers by id :" + borrowerId);
         return borrowerRepository.findById(borrowerId);
     }
 
     public Borrower save(Borrower borrower) {
+        Logger.info("calling for adding new Borrowers with full name :" + borrower.getFull_name());
         try {
             borrowerRepository.save(borrower);
         }catch (SQLException e) {
