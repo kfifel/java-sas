@@ -1,7 +1,8 @@
 package security;
 
 import database.DataBase;
-import model.Librarian;
+import entities.Librarian;
+import service.ConsoleMessageService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -37,11 +38,12 @@ public class Authentication {
 
             resultSet.close();
             preparedStatement.close();
-
+            ConsoleMessageService.success("You are logged in!!");
             return true;
         } else {
             resultSet.close();
             preparedStatement.close();
+            ConsoleMessageService.error("Emil or password failed !!");
 
             return false;
         }
@@ -49,6 +51,6 @@ public class Authentication {
     }
     public static void logout() {
         Authentication.librarian = null;
-        System.out.println("you are logged out");
+        ConsoleMessageService.warning("you are logged out");
     }
 }

@@ -3,7 +3,7 @@ package service;
 import java.sql.*;
 
 import repository.BookRepository;
-import model.Book;
+import entities.Book;
 
 import java.util.List;
 
@@ -16,6 +16,19 @@ public class BookService
     }
 
     public Book save(Book book) throws SQLException {
+        Book bookSearched;
+        if( (bookSearched = bookRepository.findByIsbn(book.getIsbn())) != null) {
+            System.out.println("livre déjà exists!!\n voulez-vous augmenter la quantité 1: oui | 0: non");
+            int input = PrintingService.getIntFromUser();
+            if(input == 1) {
+                bookSearched.setQuantity(book.getQuantity() + bookSearched.getQuantity());
+                if (this.update(bookSearched)) {
+                    Logger.info("augmenter la quantité du livre avec isbn: "+bookSearched.getIsbn()+" avec la quantity " + book.getQuantity() );
+                    return bookSearched;
+                }
+            } else
+                return null;
+        }
         return bookRepository.save(book);
     }
 

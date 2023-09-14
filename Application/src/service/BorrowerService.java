@@ -1,6 +1,6 @@
 package service;
 
-import model.Borrower;
+import entities.Borrower;
 import repository.BorrowerRepository;
 
 import java.sql.SQLException;

@@ -2,7 +2,7 @@ package repository;
 
 import database.DataBase;
 import interfaces.CRUD;
-import model.Borrower;
+import entities.Borrower;
 import service.Logger;
 
 import java.sql.*;
@@ -11,15 +11,13 @@ import java.util.Date;
 import java.util.List;
 
 public class BorrowerRepository implements CRUD<Borrower> {
-    private Connection connection;
 
-    public BorrowerRepository() {
-        this.connection = DataBase.getConnection();
-    }
+    public BorrowerRepository() {}
 
     @Override
     public Borrower save(Borrower borrower) throws SQLException {
         String query = "INSERT INTO borrower (full_name, created_at) VALUES (?, ?)";
+        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
         preparedStatement.setString(1, borrower.getFull_name());
         preparedStatement.setDate(2, new java.sql.Date(new Date().getTime()));
@@ -43,6 +41,7 @@ public class BorrowerRepository implements CRUD<Borrower> {
     @Override
     public boolean update(Borrower borrower) {
         String query = "UPDATE borrower SET full_name = ? WHERE id = ?";
+        Connection connection = DataBase.getConnection();
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, borrower.getFull_name());
@@ -64,6 +63,7 @@ public class BorrowerRepository implements CRUD<Borrower> {
         List<Borrower> borrowers = new ArrayList<>();
 
         String query = "SELECT * FROM borrower";
+        Connection connection = DataBase.getConnection();
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -86,6 +86,7 @@ public class BorrowerRepository implements CRUD<Borrower> {
     @Override
     public boolean delete(Borrower borrower) {
         String query = "DELETE FROM borrower WHERE id = ?";
+        Connection connection = DataBase.getConnection();
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setLong(1, borrower.getId());
@@ -118,14 +119,13 @@ public class BorrowerRepository implements CRUD<Borrower> {
             }
         } catch (SQLException e) {
             Logger.error(e.getMessage(), e);
-        } finally {
-            DataBase.disconnect();
         }
         return borrower;
     }
 
     public int countBorrowers() throws SQLException{
         String query = "SELECT COUNT(*) FROM borrower";
+        Connection connection = DataBase.getConnection();
         try (PreparedStatement stmt = connection.prepareStatement(query);
              ResultSet resultSet = stmt.executeQuery()) {
             if (resultSet.next()) {
