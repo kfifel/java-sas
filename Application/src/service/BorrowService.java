@@ -1,8 +1,8 @@
 package service;
 
-import model.Book;
-import model.BookBorrow;
-import model.Borrower;
+import entities.Book;
+import entities.BookBorrow;
+import entities.Borrower;
 import repository.BorrowRepository;
 
 import java.sql.SQLException;
@@ -46,5 +46,22 @@ public class BorrowService {
             Logger.error("Class BorrowRepository methode: countBorrowsThisYear", e );
             return -1;
         }
+    }
+
+    public boolean returned(BookBorrow bookBorrow) {
+        boolean res = false;
+        if (bookBorrow.getBook().getIsbn() == null || bookBorrow.getBorrower().getId() == 0 )
+        {
+            Logger.error("Some data is required!! while updating ");
+            return false;
+        }
+        try{
+            if (borrowRepository.returnBook(bookBorrow))
+                res = true;
+        }
+        catch (SQLException e) {
+            Logger.error("Error in changing the return of the book_borrow ", e);
+        }
+        return res;
     }
 }
