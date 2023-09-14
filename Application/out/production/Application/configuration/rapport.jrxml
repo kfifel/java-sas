@@ -38,7 +38,7 @@
 		</queryString>
 		<field name="BookCount" class="java.lang.Integer"/>
 		<field name="BorrowerCount" class="java.lang.Integer"/>
-		<field name="MostBorrow" class="model.Book"/>
+		<field name="MostBorrow" class="entities.Book"/>
 		<field name="BorrowCountThisYear" class="java.lang.Integer"/>
 	</subDataset>
 	<parameter name="CollectionBeanParam" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
@@ -76,7 +76,7 @@
 						<dataSourceExpression><![CDATA[$P{CollectionBeanParam}]]></dataSourceExpression>
 					</datasetRun>
 					<jr:column width="100" uuid="31cdfe56-8617-461a-8d02-23e3c1ed9ff3">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<property name="com.jaspersoft.studio.components.table.entities.column.name" value="Column1"/>
 						<jr:tableHeader style="Table_TH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="100" height="30" uuid="d4b6069e-d4c9-40b1-917a-711bd6f40889"/>
@@ -96,7 +96,7 @@
 						<jr:detailCell style="Table_TD" height="30"/>
 					</jr:column>
 					<jr:column width="110" uuid="76626f2d-9329-48c8-b2a1-ccd3d3e264da">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<property name="com.jaspersoft.studio.components.table.entities.column.name" value="Column2"/>
 						<jr:tableHeader style="Table_TH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="110" height="30" uuid="d7e3a731-ce14-41ab-a563-ffda0a57d9f3"/>
@@ -116,7 +116,7 @@
 						<jr:detailCell style="Table_TD" height="30"/>
 					</jr:column>
 					<jr:column width="100" uuid="828d033f-4b02-4adb-90f0-863f48919408">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+						<property name="com.jaspersoft.studio.components.table.entities.column.name" value="Column3"/>
 						<jr:tableHeader style="Table_TH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="100" height="30" uuid="b2aefbec-7d17-44d5-8a79-99aeeb069a7a"/>
@@ -136,7 +136,7 @@
 						<jr:detailCell style="Table_TD" height="30"/>
 					</jr:column>
 					<jr:column width="130" uuid="d31dee15-cb9a-4fcc-8f24-a5d147dd7291">
-						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+						<property name="com.jaspersoft.studio.components.table.entities.column.name" value="Column4"/>
 						<jr:tableHeader style="Table_TH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="130" height="30" uuid="423babab-ba9e-4361-9241-ccc8fe95b937"/>

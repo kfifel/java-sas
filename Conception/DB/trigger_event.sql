@@ -39,7 +39,7 @@ BEGIN
     -- Update the status of overdue borrowings to 'LOST'
     UPDATE book_borrow
     SET status = 'LOST'
-    WHERE status <> 'LOST' AND return_date < borrow_date;
+    WHERE status = 'TAKEN' AND return_date < CURRENT_DATE;
 END;
 
 # incrementing the quantity if the book while been returned
