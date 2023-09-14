@@ -1,6 +1,11 @@
 package controller;
 
-import model.Book;
+import configuration.Const;
+import ennumiration.BookBorrowStatus;
+import entities.Book;
+import entities.BookBorrow;
+import entities.Borrower;
+import entities.dto.StaticticsData;
 import security.Authentication;
 import service.*;
 
@@ -8,18 +13,19 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class MenuController {
-    private BookService bookService;
-    private ReportService reportService;
-    private BorrowService borrowService;
-    private Scanner sc;
+    private final BookService bookService;
+    private final ReportService reportService;
+    private final BorrowService borrowService;
+    private final BorrowerService borrowerService;
+    private final Scanner sc;
     private List<Book> books;
 
-    private MenuController () {}
-
-    public MenuController(BookService bookService, ReportService reportService, BorrowService borrowService) {
+    public MenuController(BookService bookService, ReportService reportService, BorrowService borrowService, BorrowerService borrowerService) {
         this.bookService = bookService;
         this.reportService = reportService;
         this.borrowService = borrowService;
+        this.borrowerService = borrowerService;
+
         sc = new Scanner(System.in);
         books = new ArrayList<>();
     }
@@ -41,7 +47,9 @@ public class MenuController {
                 case 3: this.searchForBook();           break;
                 case 4: this.returnBook();              break;
                 case 5: this.listBorrowedBooks();       break;
-                case 6: this.reportService.generateRapport(); break;
+                case 6: this.generateReport();          break;
+                case 7: Authentication.logout();
+                        login(0);                  break;
                 case 0:
                     System.out.println("Exiting Library Management System. Goodbye!");
                     sc.close();
@@ -74,10 +82,35 @@ public class MenuController {
     private void addNewBook() throws SQLException {
         Book newBook = PrintingService.getBookFromLibrarian();
 
-        Authentication.librarian.addBookAdded(
-                bookService.save(newBook));
-    }
+        this.validate(newBook);
 
+        bookService.save(newBook);
+    }
+    public boolean validate(Book book) {
+        boolean isValid = true;
+
+        if (book.getIsbn() == null || book.getIsbn().isEmpty()) {
+            System.out.println("ISBN ne peut pas être vide.");
+            isValid = false;
+        }
+
+        if (book.getTitre() == null || book.getTitre().isEmpty()) {
+            System.out.println("Le titre ne peut pas être vide.");
+            isValid = false;
+        }
+
+        if (book.getAuthor() == null || book.getAuthor().isEmpty()) {
+            System.out.println("L'auteur ne peut pas être vide.");
+            isValid = false;
+        }
+
+        if (book.getQuantity() < 0) {
+            System.out.println("La quantité ne peut pas être négative.");
+            isValid = false;
+        }
+
+        return isValid;
+    }
     private void displayAvailableBooks() throws SQLException {
         books = bookService.read();
         PrintingService.printBookTable(books);
@@ -94,12 +127,75 @@ public class MenuController {
     }
 
     private void borrowBook() {
-        String isbn = PrintingService.getIsbnFromLibrarian();
+        Book book = bookService.findByIsbn(PrintingService.getIsbnFromLibrarian());
+        if(book == null){
+            System.out.println("book is not exist");
+            return ;
+        }
 
+        if(book.getQuantity() <= 0) {
+            System.out.println("la quantité est insuffisante");
+            return ;
+        }
 
+        System.out.println("1: Emprunteur déjà exister");
+        System.out.println("2: Ajouter un nouveau emprunteur");
+
+        int input = PrintingService.getIntFromUser();
+        Borrower borrower;
+        switch (input) {
+            case 1: borrower = this.getExistsBorrowerFromUser(); break;
+            case 2: borrower = this.getNewBorrowerFromUser(); break;
+            default: return ;
+        }
+
+        Date dateReturned = PrintingService.getDateReturnFromUser();
+        BookBorrow bookBorrow = new BookBorrow();
+
+        bookBorrow.setBook(book);
+        bookBorrow.setBorrower(borrower);
+        bookBorrow.setReturn_date(dateReturned);
+        bookBorrow.setStatus(BookBorrowStatus.TAKEN);
+
+        if(borrowService.borrowBook(bookBorrow).getId() != 0)
+            System.out.println("l'emprunt a étais bien enregistrer");
+        else
+            System.out.println("Error is occurred!");
     }
 
-    private Book searchForBook() throws SQLException {
+    private Borrower getNewBorrowerFromUser() {
+
+        System.out.println("Entrez le nom complet du nouvel emprunteur :");
+        String fullName = sc.nextLine().trim();
+        Borrower borrower =  new Borrower(0, fullName, new Date());
+        borrower = borrowerService.save(borrower);
+        return borrower;
+    }
+
+    private Borrower getExistsBorrowerFromUser() {
+            return this.salectBorrower();
+    }
+
+    private Borrower salectBorrower() {
+        List<Borrower> borrowers = borrowerService.read();
+        PrintingService.printBorrowers(borrowers);
+
+        System.out.println("+----------------------------------------------+");
+        System.out.println("+---------- SÉLECTIONNER L'EMPRUNTEUR ---------+");
+        System.out.println("+----------------------------------------------+\n");
+
+        System.out.print("+----- ID DE L'EMPRUNTEUR :");
+        int id = sc.nextInt();
+
+        Borrower borrower = borrowerService.findById(id);
+
+        if (borrower == null)
+            System.out.println("Aucune emprunteur trouvé !");
+
+        return borrower;
+    }
+
+    private Book searchForBook() {
         System.out.println("+----------------------------------------------+");
         System.out.println("|--------------- RECHERCHER UN LIVRE ----------|");
         System.out.println("+----------------------------------------------+");
@@ -107,6 +203,9 @@ public class MenuController {
         do {
             System.out.print("+-----DONNER ISBN DE LIVRE:    ");
             isbn = sc.nextLine();
+
+            if(isbn.isEmpty())
+                System.out.println("isbn couldn't be empty");
 
         }while(isbn.isEmpty());
 
@@ -121,10 +220,45 @@ public class MenuController {
     }
 
     private void returnBook() {
+        String isbn = PrintingService.getIsbnFromLibrarian();
+        Book book = bookService.findByIsbn(isbn);
+        if(book == null) {
+            ConsoleMessageService.error("No book is found with isbn: " + isbn);
+            return ;
+        }
+        Borrower borrower = salectBorrower();
+
+        BookBorrow bookBorrow = borrowService.findBookBorrowByBorrowerIdAndIsbn(borrower, book);
+        if (bookBorrow == null)
+            System.out.println(Const.RED +
+                    "l'emprunt avec le livre: " + Const.BLEU + book.getTitre() + Const.RED +
+                    " et l'emprunteur : " + Const.WHITE + borrower.getFull_name() + Const.RED +
+                    " n'existe pas!!"+Const.WHITE);
+        else {
+            PrintingService.printBorrowBooks(Collections.singletonList(bookBorrow));
+
+            if (borrowService.returned(bookBorrow)) {
+                ConsoleMessageService.success("livre bien returner!!!");
+            } else {
+                ConsoleMessageService.error("Error has occurred !!!");
+            }
+        }
     }
 
     private void listBorrowedBooks() {
+        List<BookBorrow> bookBorrow = borrowService.read();
+        PrintingService.printBorrowBooks(bookBorrow);
+
+        System.out.println("1: RETURN | 2: UPDATE | 0: GO BACK ");
+        int input = PrintingService.getIntFromUser();
+        switch (input) {
+            case 1: returnBook(); break;
+            case 2: updateBookBorrow(); break;
+            default: break;
+        }
     }
+
+    private void updateBookBorrow() {}
 
     private void deleteBook() throws SQLException {
         String isbn = PrintingService.getIsbnFromLibrarian();
@@ -141,17 +275,28 @@ public class MenuController {
 
     private void modifyBookInformation() throws SQLException {
         Book book = this.searchForBook();
+
+        System.out.println(
+                Const.WARNING+
+                "\n****************** if column is not include for modification don't fill it *************\n"
+                + Const.WHITE);
+
         Book newBook = PrintingService.getBookFromLibrarian();
 
-        book.setTitre(newBook.getTitre());
+        book.setTitre(newBook.getTitre().trim());
         book.setDescription(newBook.getDescription());
         book.setAuthor(newBook.getAuthor());
         book.setQuantity(newBook.getQuantity());
 
-        bookService.update(book);
+        if(bookService.update(book))
+            System.out.println("livre est bien modifier");
+        else
+            System.out.println("somme error is occurred");
     }
 
     private void generateReport() {
-        reportService.generateRapport();
+        StaticticsData staticticsData =  this.reportService.generateRapport();
+
+        PrintingService.printStatistics(staticticsData);
     }
 }

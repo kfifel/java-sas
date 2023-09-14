@@ -1,4 +1,4 @@
-package model;
+package entities;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -96,5 +96,14 @@ public class Book
     @Override
     public String toString() {
         return "Book{isbn='" + this.isbn + '\'' + ", titre='" + this.titre + '\'' + ", description='" + this.description + '\'' + ", author='" + this.author + '\'' + ", quantity=" + this.quantity + ", created_by=" + this.created_by + ", created_at=" + this.created_at + '}';
+    }
+    private int borrowCount;
+
+    public int getBorrowCount() {
+        return borrowCount;
+    }
+
+    public void setBorrowCount(int borrowCount) {
+        this.borrowCount = borrowCount;
     }
 }

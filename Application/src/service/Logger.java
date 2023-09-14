@@ -1,38 +1,57 @@
 package service;
 
+import configuration.Const;
+import configuration.Properties;
+
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Objects;
 
 public class Logger {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private static final String logFilePath = "C:\\Users\\fifle\\Desktop\\YouCode\\SAS JAVA\\logs\\"; // Change this to your desired log file path
+    private static final String logFilePath = "C:\\Users\\fifle\\Desktop\\YouCode\\SAS JAVA\\logs\\";
 
     public static void info(String message) {
-        log("INFO", message);
+        log("INFO", message, null);
     }
 
     public static void warning(String message) {
-        log("WARNING", message);
+        log("WARNING", message, null);
     }
 
     public static void error(String message) {
-        log("ERROR", message);
+        log("ERROR", message, null);
     }
 
-    private static void log(String level, String message) {
+    public static void error(String message, Throwable throwable) {
+        log("ERROR", message, throwable);
+    }
+
+    private static void log(String level, String message, Throwable throwable) {
         Date now = new Date();
         String formattedDate = dateFormat.format(now);
         String logMessage = "[" + formattedDate + "] [" + level + "] " + message;
 
-        // Print to console
-        // System.out.println(logMessage);
+        if(Properties.DEVELOPMENT)
+            System.out.println(
+                    ( Objects.equals(level, "ERROR") ?
+                            Const.RED : Objects.equals(level, "INFO")
+                            ? Const.BLEU : Const.WARNING )
+                            + " " + logMessage + " " + Const.WHITE);
 
-        // Append to the log file
-        try (FileWriter fileWriter = new FileWriter(logFilePath + LocalDate.now() + ".text", true)) {
+
+        // Log to file
+        try (FileWriter fileWriter = new FileWriter(logFilePath + LocalDate.now() + ".txt", true)) {
             fileWriter.write(logMessage + System.lineSeparator());
+            if (throwable != null) {
+                PrintWriter pw = new PrintWriter(fileWriter);
+                throwable.printStackTrace(pw);
+                pw.flush();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

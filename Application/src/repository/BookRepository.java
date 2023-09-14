@@ -2,34 +2,21 @@ package repository;
 
 import database.DataBase;
 import interfaces.CRUD;
-import model.Book;
-import model.Librarian;
+import entities.Book;
+import entities.Librarian;
 import security.Authentication;
 import service.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BookRepository implements CRUD<Book> {
-    private final Connection connection;
-
-    public BookRepository() {
-        this.connection = DataBase.getConnection();
-    }
+    public BookRepository() {}
 
     @Override
     public Book save(Book book) throws SQLException {
-        String query = "INSERT INTO book (isbn, titre, description, author, quantity, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-
-        preparedStatement.setString(1, book.getIsbn());
-        preparedStatement.setString(2, book.getTitre());
-        preparedStatement.setString(3, book.getDescription());
-        preparedStatement.setString(4, book.getAuthor());
+        PreparedStatement preparedStatement = getPreparedStatement(book);
         preparedStatement.setInt(5, book.getQuantity());
         preparedStatement.setInt(6, book.getCreated_by().getId());
         preparedStatement.setDate(7, new java.sql.Date(book.getCreated_at().getTime()));
@@ -44,9 +31,27 @@ public class BookRepository implements CRUD<Book> {
         }
     }
 
+    private static PreparedStatement getPreparedStatement(Book book) throws SQLException {
+        String query = "INSERT INTO book " +
+                "(isbn, titre, description, author, quantity, created_by, created_at) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        Connection connection = DataBase.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+        preparedStatement.setString(1, book.getIsbn());
+        preparedStatement.setString(2, book.getTitre());
+        preparedStatement.setString(3, book.getDescription());
+        preparedStatement.setString(4, book.getAuthor());
+        return preparedStatement;
+    }
+
     @Override
     public boolean update(Book book) throws SQLException {
-        String query = "UPDATE book SET titre = ?, description = ?, author = ?, quantity = ?, created_by = ?, created_at = ? WHERE isbn = ?";
+        String query = "UPDATE book SET " +
+                "titre = ?, description = ?, author = ?, quantity = ?, created_by = ?, created_at = ?" +
+                " WHERE isbn = ?";
+
+        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
 
         preparedStatement.setString(1, book.getTitre());
@@ -65,8 +70,10 @@ public class BookRepository implements CRUD<Book> {
     @Override
     public List<Book> read() {
         final List<Book> books = new ArrayList<>();
-        final String query = "SELECT * FROM book b INNER JOIN librarian l ON b.created_by = l.id";
-        try (final PreparedStatement preparedStatement = this.connection.prepareStatement(query);
+        final String query = "SELECT * FROM book b INNER JOIN librarian l ON b.created_by = l.id WHERE quantity > 0";
+        Connection connection = DataBase.getConnection();
+
+        try (final PreparedStatement preparedStatement = connection.prepareStatement(query);
              final ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 // creator
@@ -97,6 +104,7 @@ public class BookRepository implements CRUD<Book> {
     @Override
     public boolean delete(Book book) throws SQLException{
         String query = "DELETE FROM book where isbn = ?";
+        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1, book.getIsbn());
         int rowAffected = preparedStatement.executeUpdate();
@@ -106,8 +114,10 @@ public class BookRepository implements CRUD<Book> {
     public Book findByIsbn(String isbn) throws SQLException {
         Librarian librarian;
         Book book = null;
-        String query = "SELECT * FROM book b INNER JOIN librarian l On b.created_by = l.id WHERE isbn = ? AND quantity > 0 ";
-
+        String query = "SELECT * FROM " +
+                "book b INNER JOIN librarian l On b.created_by = l.id" +
+                " WHERE isbn = ?";
+        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1, isbn);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -134,5 +144,42 @@ public class BookRepository implements CRUD<Book> {
             );
         }
         return book;
+    }
+
+    public int countBooks() throws SQLException {
+        String query = "SELECT COUNT(*) FROM book";
+        Connection connection = DataBase.getConnection();
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet resultSet = stmt.executeQuery()) {
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        }
+        return -1;
+    }
+
+    public Book getMostBorrowedBook() throws SQLException{
+        String query = "SELECT bk.isbn, COUNT(br.isbn) AS count " +
+                "FROM book bk " +
+                "INNER JOIN book_borrow br ON bk.isbn = br.isbn " +
+                "GROUP BY bk.isbn " +
+                "ORDER BY count DESC " +
+                "LIMIT 1";
+        Connection connection = DataBase.getConnection();
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet resultSet = stmt.executeQuery()) {
+            if (resultSet.next()) {
+                String isbn = resultSet.getString("isbn");
+                int count = resultSet.getInt("count");
+                Book book = findByIsbn(isbn);
+
+                if (book != null) {
+                    book.setBorrowCount(count);
+                    return book;
+                }
+            }
+        }
+
+        return null;
     }
 }
