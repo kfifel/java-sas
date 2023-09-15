@@ -103,6 +103,10 @@ public class Book
         return borrowCount;
     }
 
+    public int getBorrowCount(int i) {
+        return borrowCount;
+    }
+
     public void setBorrowCount(int borrowCount) {
         this.borrowCount = borrowCount;
     }

@@ -10,14 +10,23 @@ import java.util.Collections;
 import java.util.List;
 
 public class BorrowService {
-    private BorrowRepository borrowRepository;
+    private final BorrowRepository borrowRepository;
 
     public BorrowService() {
         borrowRepository = new BorrowRepository();
     }
 
-    public BookBorrow borrowBook(BookBorrow bookBorrow) {
+    public BookBorrow borrowBook(BookBorrow bookBorrow) throws SQLException {
         Logger.info("Borrowing a book with title:"+ bookBorrow.getBook().getTitre()+" from the Borrower: "+bookBorrow.getBorrower().getFull_name());
+        if (borrowRepository.hasBorrowedUnreturnedBook(bookBorrow.getBorrower().getId(), bookBorrow.getBook().getIsbn())) {
+            ConsoleMessageService.error("Borrow has a book unreturned");
+            return null;
+        }
+        else if (borrowRepository.hasBorrowedLostBook(bookBorrow.getBorrower().getId(), bookBorrow.getBook().getIsbn())) {
+            ConsoleMessageService.error("Borrow has lost book");
+            return null;
+        }
+
         return borrowRepository.save(bookBorrow);
     }
 

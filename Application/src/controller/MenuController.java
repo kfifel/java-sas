@@ -51,11 +51,11 @@ public class MenuController {
                 case 7: Authentication.logout();
                         login(0);                  break;
                 case 0:
-                    System.out.println("Exiting Library Management System. Goodbye!");
+                    ConsoleMessageService.info("Exiting Library Management System. Goodbye!");
                     sc.close();
                     System.exit(0);
                 default:
-                    System.out.println("Invalid choice. Please enter a valid option.");
+                    ConsoleMessageService.info("Invalid choice. Please enter a valid option.");
 
             }
         }
@@ -63,7 +63,7 @@ public class MenuController {
 
     private void login(int trys) throws SQLException {
         if(trys == 3){
-            System.out.println("Your trys limit is finished");
+            ConsoleMessageService.error("Your trys limit is finished");
             System.exit(0);
         }
         System.out.println("=====================================");
@@ -90,22 +90,22 @@ public class MenuController {
         boolean isValid = true;
 
         if (book.getIsbn() == null || book.getIsbn().isEmpty()) {
-            System.out.println("ISBN ne peut pas être vide.");
+            ConsoleMessageService.warning("ISBN ne peut pas être vide.");
             isValid = false;
         }
 
         if (book.getTitre() == null || book.getTitre().isEmpty()) {
-            System.out.println("Le titre ne peut pas être vide.");
+            ConsoleMessageService.warning("Le titre ne peut pas être vide.");
             isValid = false;
         }
 
         if (book.getAuthor() == null || book.getAuthor().isEmpty()) {
-            System.out.println("L'auteur ne peut pas être vide.");
+            ConsoleMessageService.warning("L'auteur ne peut pas être vide.");
             isValid = false;
         }
 
         if (book.getQuantity() < 0) {
-            System.out.println("La quantité ne peut pas être négative.");
+            ConsoleMessageService.warning("La quantité ne peut pas être négative.");
             isValid = false;
         }
 
@@ -126,20 +126,20 @@ public class MenuController {
         }
     }
 
-    private void borrowBook() {
+    private void borrowBook() throws SQLException {
         Book book = bookService.findByIsbn(PrintingService.getIsbnFromLibrarian());
-        if(book == null){
-            System.out.println("book is not exist");
+        if(book == null) {
+            ConsoleMessageService.info("book is not exist");
             return ;
         }
 
         if(book.getQuantity() <= 0) {
-            System.out.println("la quantité est insuffisante");
+            ConsoleMessageService.warning("la quantité est insuffisante");
             return ;
         }
 
-        System.out.println("1: Emprunteur déjà exister");
-        System.out.println("2: Ajouter un nouveau emprunteur");
+        ConsoleMessageService.info("1: Emprunteur déjà exister");
+        ConsoleMessageService.info("2: Ajouter un nouveau emprunteur");
 
         int input = PrintingService.getIntFromUser();
         Borrower borrower;
@@ -158,14 +158,14 @@ public class MenuController {
         bookBorrow.setStatus(BookBorrowStatus.TAKEN);
 
         if(borrowService.borrowBook(bookBorrow).getId() != 0)
-            System.out.println("l'emprunt a étais bien enregistrer");
+            ConsoleMessageService.success("l'emprunt a étais bien enregistrer");
         else
-            System.out.println("Error is occurred!");
+            ConsoleMessageService.error("Error is occurred!");
     }
 
     private Borrower getNewBorrowerFromUser() {
 
-        System.out.println("Entrez le nom complet du nouvel emprunteur :");
+        ConsoleMessageService.info("Entrez le nom complet du nouvel emprunteur :");
         String fullName = sc.nextLine().trim();
         Borrower borrower =  new Borrower(0, fullName, new Date());
         borrower = borrowerService.save(borrower);
@@ -190,7 +190,7 @@ public class MenuController {
         Borrower borrower = borrowerService.findById(id);
 
         if (borrower == null)
-            System.out.println("Aucune emprunteur trouvé !");
+            ConsoleMessageService.warning("Aucune emprunteur trouvé !");
 
         return borrower;
     }
@@ -205,14 +205,14 @@ public class MenuController {
             isbn = sc.nextLine();
 
             if(isbn.isEmpty())
-                System.out.println("isbn couldn't be empty");
+                ConsoleMessageService.warning("isbn couldn't be empty");
 
         }while(isbn.isEmpty());
 
         Book book = bookService.findByIsbn(isbn);
 
         if (book == null)
-            System.out.println("Aucune livre trouvé !");
+            ConsoleMessageService.warning("Aucune livre trouvé !");
         else
             PrintingService.printBookTable(Collections.singletonList(book));
 
@@ -266,10 +266,10 @@ public class MenuController {
         book = bookService.findByIsbn(isbn);
 
         if (book == null)
-            System.out.println("book n'est pas trouvé!!");
+            ConsoleMessageService.error("book n'est pas trouvé!!");
         else {
             if(bookService.delete(book))
-                System.out.println("le livre a étais bien supprimer");
+                ConsoleMessageService.info("le livre a étais bien supprimer");
         }
     }
 
@@ -279,10 +279,7 @@ public class MenuController {
             ConsoleMessageService.warning("There is no book with this isbn");
             return;
         }
-        System.out.println(
-                Const.WARNING+
-                "\n****************** if column is not include for modification don't fill it *************\n"
-                + Const.WHITE);
+        ConsoleMessageService.warning("\n****************** if column is not include for modification don't fill it *************\n");
 
         Book newBook = PrintingService.getBookFromLibrarian();
 

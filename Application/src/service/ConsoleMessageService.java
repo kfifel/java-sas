@@ -14,4 +14,8 @@ public class ConsoleMessageService {
     public static void warning (String message) {
         System.out.println(Const.WARNING + message + Const.WHITE);
     }
+
+    public static void info(String message) {
+        System.out.println(Const.BLEU + message + Const.WHITE);
+    }
 }

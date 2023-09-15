@@ -68,10 +68,10 @@ public class PrintingService {
 
                 // Check if the entered date is greater than one month from the current date
                 if (date.after(oneMonthLater)) {
-                    System.out.println("Alert: Return date should not be greater than one month from today.");
+                    ConsoleMessageService.warning("Alert: Return date should not be greater than one month from today.");
                 }
             } catch (ParseException e) {
-                System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+                ConsoleMessageService.error("Invalid date format. Please use yyyy-MM-dd.");
             }
         }while(date == null);
 
@@ -106,7 +106,7 @@ public class PrintingService {
         System.out.println("==================================================");
 
         if (borrowers.isEmpty()) {
-            System.out.println("No borrowers found.");
+            ConsoleMessageService.warning("No borrowers found.");
         } else {
             System.out.printf("%-5s %-30s %-20s%n", "ID", "Full Name", "Created At");
             System.out.println("--------------------------------------------------");
@@ -139,7 +139,7 @@ public class PrintingService {
 
             for (BookBorrow bookBorrow : bookBorrows) {
                 if (bookBorrow == null) {
-                    System.out.println("BookBorrow is null");
+                    ConsoleMessageService.info("BookBorrow is null");
                     continue;
                 }
                 System.out.printf("|%-5d | %-35s | %-20s | %-20s | %-20s | %-20s%n",
@@ -162,7 +162,7 @@ public class PrintingService {
 
         System.out.println(border);
         System.out.println(emptyLine);
-        System.out.println("*       Library Statistics Report      *");
+        ConsoleMessageService.info("*       Library Statistics Report      *");
         System.out.println(emptyLine);
         System.out.println(border );
 

@@ -8,20 +8,22 @@ import entities.BookBorrow;
 import entities.Borrower;
 import service.Logger;
 
+import javax.management.Query;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class BorrowRepository implements CRUD<BookBorrow> {
-
+    Connection connection = DataBase.getConnection();
     public BorrowRepository() {}
 
     @Override
     public BookBorrow save(BookBorrow bookBorrow) {
         String query = "INSERT INTO book_borrow(isbn, borrower_id, status, borrow_date, return_date) VALUES (?, ?, ?, ?, ?)";
-        Connection con = DataBase.getConnection();
-        try(PreparedStatement preparedStatement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)){
+
+        try{
+            PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             Date nowDate = new Date();
             preparedStatement.setString(1, bookBorrow.getBook().getIsbn());
             preparedStatement.   setInt(2, bookBorrow.getBorrower().getId());
@@ -37,6 +39,7 @@ public class BorrowRepository implements CRUD<BookBorrow> {
                     bookBorrow.setId(generatedId);
                 }
             }
+            preparedStatement.close();
             return bookBorrow;
         }catch (SQLException e){
             Logger.error("Error: ", e);
@@ -56,7 +59,6 @@ public class BorrowRepository implements CRUD<BookBorrow> {
         String query = "SELECT * FROM book_borrow bk INNER JOIN book b ON bk.isbn = b.isbn" +
                 " INNER JOIN borrower br ON br.id = bk.borrower_id" +
                 " WHERE bk.status = ?";
-        Connection connection = DataBase.getConnection();
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setString(1, BookBorrowStatus.TAKEN.name());
         ResultSet resultSet = statement.executeQuery();
@@ -99,20 +101,18 @@ public class BorrowRepository implements CRUD<BookBorrow> {
 
     public int countBorrowsThisYear() throws SQLException{
         String query = "SELECT COUNT(*) FROM book_borrow WHERE YEAR(borrow_date) = YEAR(NOW())";
-        Connection connection = DataBase.getConnection();
-        try (PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet resultSet = stmt.executeQuery()) {
-            if (resultSet.next()) {
-                return resultSet.getInt(1);
-            }
+        PreparedStatement stmt = connection.prepareStatement(query);
+        ResultSet resultSet = stmt.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
         }
+
         return -1;
     }
 
     public BookBorrow findBookBorrowByBorrowerIdAndIsbn(Borrower borrower, Book book) throws SQLException {
         String query = "SELECT * FROM book_borrow where isbn = ? AND borrower_id = ?";
         BookBorrow bookBorrow = null;
-        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1, book.getIsbn());
         preparedStatement.setInt(2, borrower.getId());
@@ -137,11 +137,29 @@ public class BorrowRepository implements CRUD<BookBorrow> {
     public boolean returnBook(BookBorrow bookBorrow) throws SQLException {
         String query = "UPDATE book_borrow SET status = ? WHERE isbn = ? AND borrower_id = ?";
 
-        Connection connection = DataBase.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         preparedStatement.setString(1, BookBorrowStatus.RETURNED.name());
         preparedStatement.setString(2, bookBorrow.getBook().getIsbn());
         preparedStatement.setInt(3, bookBorrow.getBorrower().getId());
         return preparedStatement.executeUpdate() > 0;
+    }
+
+    public boolean hasBorrowedUnreturnedBook(int borrowerId, String isbn) throws SQLException {
+        return this.borrowBookHasStatus(borrowerId, isbn, BookBorrowStatus.TAKEN);
+    }
+
+    public boolean hasBorrowedLostBook(int borrowerId, String isbn) throws SQLException {
+        return this.borrowBookHasStatus(borrowerId, isbn, BookBorrowStatus.LOST);
+    }
+
+    private boolean borrowBookHasStatus(int borrowerId, String isbn, BookBorrowStatus status) throws SQLException {
+        String query = "SELECT id FROM book_borrow WHERE borrower_id = ? AND isbn = ? AND status = ?";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setInt(1, borrowerId);
+        preparedStatement.setString(2, isbn);
+        preparedStatement.setString(3, status.name());
+        ResultSet resultSet = preparedStatement.executeQuery();
+        return resultSet.next();
     }
 }
